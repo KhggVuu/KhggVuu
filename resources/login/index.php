@@ -1,3 +1,32 @@
+<?php
+require_once("../../../connection/conectdb.php");
+?> 
+
+<?php
+    if (isset($_POST['login'])) {
+        try {
+            $sql = "select * from admin where adminID = ? and adminPwd = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(1,$_POST['adminID']);
+            $stmt->bindParam(2,$_POST['adminPwd']);
+            $stmt->execute();
+            $row = $stmt->fetch();
+            if ($row == FALSE) {
+                echo 'Invalid admin id or password!';
+            }
+            else {
+                session_start();
+                $_SESSION['adminID'] = $row['adminID'];
+                $_SESSION['adminFullname'] = $row['fullname'];
+                $_SESSION['adminEmail'] = $row['email'];
+                $_SESSION['adminPhoto'] = $row['adminPhoto'];
+                header('Location: ../../admin_index.php');
+            }
+        } catch (PDOException $ex) {
+            echo 'Error '. $ex->getMessage();
+        }
+    }
+?>
 <!doctype html>
 <html lang="en">
   <head>
@@ -26,10 +55,10 @@
 		      	<h3 class="mb-4 text-center">Have an account?</h3>
 		      	<form action="#" class="signin-form">
 		      		<div class="form-group">
-		      			<input type="text" class="form-control" placeholder="Username" required>
+		      			<input type="text" class="form-control" placeholder="Username" name="adminID" required>
 		      		</div>
 	            <div class="form-group">
-	              <input id="password-field" type="password" class="form-control" placeholder="Password" required>
+	              <input id="password-field" type="password" class="form-control" placeholder="Password" name="adminPwd" required>
 	              <span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password"></span>
 	            </div>
 	            <div class="form-group">
